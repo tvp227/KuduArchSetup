@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# KUDU SETUP SCRIPT - STREAMLINED VERSION
+# KUDU SETUP SCRIPT - MINIMALIST VERSION
 # ======================================
 # CORE GNOME SETUP WITH DRACULA THEME AND ESSENTIAL TOOLS
 
@@ -86,12 +86,12 @@ show_progress() {
   echo ""
 }
 
-# DISPLAY LOGO AT START
-display_logo
-
 # SETUP LOGGING
 LOG_FILE="/var/log/kudu-setup.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
+
+# DISPLAY LOGO AT START
+display_logo
 
 # GET USERNAME
 USERNAME=$(logname || whoami)
@@ -101,38 +101,52 @@ fi
 
 show_progress "STARTING KUDU SETUP WITH VANILLA GNOME CONFIGURATION"
 
-# UPDATE SYSTEM AND INSTALL BASIC PACKAGES
-show_progress "UPDATING SYSTEM AND INSTALLING BASE PACKAGES"
+# UPDATE SYSTEM
+show_progress "UPDATING SYSTEM"
 pacman -Syu --noconfirm
+
+# INSTALL MINIMAL BASE PACKAGES
+show_progress "INSTALLING MINIMAL BASE PACKAGES"
 pacman -S --noconfirm base-devel git sudo wget curl
 
-# INSTALL GNOME DESKTOP ENVIRONMENT
-show_progress "INSTALLING GNOME DESKTOP ENVIRONMENT"
-pacman -S --noconfirm gnome gnome-extra gdm networkmanager gnome-boxes
+# INSTALL MINIMAL GNOME
+show_progress "INSTALLING MINIMAL GNOME DESKTOP"
+pacman -S --noconfirm gnome-shell gdm gnome-terminal gnome-control-center gnome-tweaks gnome-keyring nautilus eog networkmanager xdg-user-dirs
 
 # ENABLE GDM AND NETWORKMANAGER
 systemctl enable gdm.service
 systemctl enable NetworkManager.service
 
-# INSTALL UTILITIES AND USER APPLICATIONS
-show_progress "INSTALLING UTILITIES AND APPLICATIONS"
-pacman -S --noconfirm python python-pip zsh zsh-completions flatpak chromium
-pacman -S --noconfirm libreoffice-fresh discord gnome-boxes 
+# INSTALL CORE UTILITIES
+show_progress "INSTALLING CORE UTILITIES"
+pacman -S --noconfirm zsh zsh-completions flatpak
 
-# INSTALL MULTIMEDIA APPLICATIONS
-show_progress "INSTALLING MULTIMEDIA APPLICATIONS"
-pacman -S --noconfirm cheese vlc obs-studio handbrake ffmpeg shotwell
+# INSTALL SELECTED APPLICATIONS
+show_progress "INSTALLING SELECTED APPLICATIONS"
+pacman -S --noconfirm chromium discord
 
 # SETUP FLATPAK
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
+# INSTALL YAY AUR HELPER
+show_progress "INSTALLING YAY AUR HELPER"
+cd /tmp
+sudo -u $USERNAME git clone https://aur.archlinux.org/yay.git
+cd yay
+sudo -u $USERNAME makepkg -si --noconfirm
+
+# INSTALL AUR PACKAGES
+show_progress "INSTALLING AUR PACKAGES"
+sudo -u $USERNAME yay -S --noconfirm visual-studio-code-bin postman-bin teams spotify
+
 # INSTALL OH MY ZSH
+show_progress "SETTING UP ZSH WITH POWERLEVEL10K THEME"
 sudo -u $USERNAME sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
 # INSTALL POWERLEVEL10K THEME
 sudo -u $USERNAME git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/$USERNAME/.oh-my-zsh/custom/themes/powerlevel10k
 
-# CONFIGURE ZSH
+# CONFIGURE ZSH WITH ALIASES
 cat > /home/$USERNAME/.zshrc << 'EOL'
 # ENABLE POWERLEVEL10K INSTANT PROMPT
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -150,11 +164,14 @@ plugins=(git sudo history)
 
 source $ZSH/oh-my-zsh.sh
 
-# USEFUL ALIASES
+# PACMAN ALIASES
 alias update="sudo pacman -Syu"
 alias install="sudo pacman -S"
 alias search="pacman -Ss"
 alias remove="sudo pacman -Rs"
+alias unlock="sudo rm /var/lib/pacman/db.lck"
+alias cleanup="sudo pacman -Rns $(pacman -Qtdq)"
+alias mirror="sudo reflector --country 'United Kingdom' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist"
 
 # P10K CONFIGURATION
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -163,30 +180,14 @@ EOL
 chown $USERNAME:$USERNAME /home/$USERNAME/.zshrc
 chsh -s /bin/zsh $USERNAME
 
-# SETUP GNOME EXTENSIONS
-show_progress "SETTING UP GNOME EXTENSIONS"
-pacman -S --noconfirm gnome-shell-extensions gnome-tweaks
+# INSTALL GNOME EXTENSION MANAGER AND EXTENSIONS
+show_progress "INSTALLING GNOME EXTENSION MANAGER AND EXTENSIONS"
+sudo -u $USERNAME yay -S --noconfirm gnome-shell-extension-manager
+pacman -S --noconfirm gnome-browser-connector 
 
-# INSTALL YAY AUR HELPER
-show_progress "INSTALLING YAY AUR HELPER"
-cd /tmp
-sudo -u $USERNAME git clone https://aur.archlinux.org/yay.git
-cd yay
-sudo -u $USERNAME makepkg -si --noconfirm
-
-# INSTALL GNOME EXTENSION TOOLS
-sudo -u $USERNAME yay -S --noconfirm gnome-browser-connector gnome-shell-extension-installer
-
-# INSTALL EXTENSIONS
-sudo -u $USERNAME gnome-shell-extension-installer 307 --yes # DASH TO DOCK
-sudo -u $USERNAME gnome-shell-extension-installer 3193 --yes # BLUR MY SHELL
-sudo -u $USERNAME gnome-shell-extension-installer 1460 --yes # VITALS
-sudo -u $USERNAME gnome-shell-extension-installer 517 --yes # CAFFEINE
-sudo -u $USERNAME gnome-shell-extension-installer 277 --yes # IMPATIENCE
-sudo -u $USERNAME gnome-shell-extension-installer 615 --yes # APPINDICATOR SUPPORT
-
-# ENABLE THE EXTENSIONS
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.shell enabled-extensions "['dash-to-dock@micxgx.gmail.com', 'blur-my-shell@aunetx', 'Vitals@CoreCoding.com', 'caffeine@patapon.info', 'impatience@gfxmonk.net', 'appindicatorsupport@rgcjonas.gmail.com']"
+# INSTALL PAPIRUS ICON THEME (WORKS WELL WITH DRACULA)
+show_progress "INSTALLING PAPIRUS ICON THEME WITH DRACULA COLORS"
+pacman -S --noconfirm papirus-icon-theme
 
 # INSTALL DRACULA THEME
 show_progress "INSTALLING DRACULA THEME"
@@ -200,16 +201,27 @@ cd /tmp
 sudo -u $USERNAME git clone https://github.com/dracula/gtk.git dracula-theme
 sudo -u $USERNAME cp -r dracula-theme /home/$USERNAME/.themes/Dracula
 
-# INSTALL TELA ICON THEME
+# INSTALL DRACULA PAPIRUS FOLDER COLORS
 cd /tmp
-sudo -u $USERNAME git clone https://github.com/vinceliuice/Tela-icon-theme.git
-cd Tela-icon-theme
-sudo -u $USERNAME ./install.sh -a -d
+sudo -u $USERNAME git clone https://github.com/dracula/papirus-folders.git
+cd papirus-folders
+sudo -u $USERNAME ./install.sh
 
 # APPLY THEMES
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Dracula'
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.wm.preferences theme 'Dracula'
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Tela-purple'
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus'
+
+# CONFIGURE GNOME TWEAKS - RESTORE MINIMIZE/MAXIMIZE BUTTONS
+show_progress "CONFIGURING GNOME TWEAKS"
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+
+# DOWNLOAD AND SET WALLPAPER
+show_progress "SETTING WALLPAPER"
+wget -q "https://cdn.wallpapersafari.com/64/65/QhkeST.jpg" -O /home/$USERNAME/wallpaper.jpg
+chown $USERNAME:$USERNAME /home/$USERNAME/wallpaper.jpg
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.background picture-uri "file:///home/$USERNAME/wallpaper.jpg"
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.background picture-uri-dark "file:///home/$USERNAME/wallpaper.jpg"
 
 # SET GNOME TERMINAL TO USE DRACULA COLORS
 profile=$(sudo -u $USERNAME dbus-launch gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'")
@@ -217,11 +229,6 @@ sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/o
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ foreground-color '#F8F8F2'
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ use-theme-colors false
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ palette "['#262626', '#E356A7', '#42E66C', '#E4F34A', '#9B6BDF', '#E64747', '#75D7EC', '#EFA554', '#7A7A7A', '#FF79C6', '#50FA7B', '#F1FA8C', '#BD93F9', '#FF5555', '#8BE9FD', '#FFB86C']"
-
-# INSTALL AUR PACKAGES
-show_progress "INSTALLING AUR PACKAGES"
-pacman -S --noconfirm gconf
-sudo -u $USERNAME yay -S --noconfirm teams visual-studio-code-bin postman-bin spotify
 
 # OPTIMIZE PACMAN
 show_progress "OPTIMIZING PACMAN"
@@ -243,21 +250,20 @@ echo -e "${GREEN}┏━━━━━━━━━━━━━━━━━━━━
 echo -e "${GREEN}┃                     ${WHITE}KUDU ARCH LINUX SETUP COMPLETE${GREEN}                     ┃${RESET}"
 echo -e "${GREEN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${RESET}"
 echo ""
-echo -e "${CYAN}YOUR KUDU ARCH LINUX SYSTEM HAS BEEN CONFIGURED WITH:${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}VANILLA GNOME DESKTOP ENVIRONMENT${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}DRACULA THEME APPLIED SYSTEM-WIDE${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}FLATPAK SUPPORT${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}CHROMIUM BROWSER${RESET}"
+echo -e "${CYAN}YOUR MINIMAL KUDU ARCH LINUX SYSTEM HAS BEEN CONFIGURED WITH:${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}MINIMAL GNOME DESKTOP ENVIRONMENT${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}DRACULA THEME WITH PAPIRUS ICONS${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}CUSTOM WALLPAPER${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}GNOME TWEAKS WITH RESTORED WINDOW BUTTONS${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}GNOME EXTENSION MANAGER${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}ZSH WITH POWERLEVEL10K THEME${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}GNOME EXTENSIONS: DASH TO DOCK, BLUR MY SHELL, VITALS, CAFFEINE, IMPATIENCE, APPINDICATOR${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}PACMAN ALIASES FOR EASIER SYSTEM MANAGEMENT${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}CHROMIUM BROWSER${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}MICROSOFT TEAMS${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}VISUAL STUDIO CODE${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}POSTMAN${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}SPOTIFY${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}DISCORD${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}LIBREOFFICE${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}GNOME BOXES${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}MULTIMEDIA APPS: CHEESE, VLC, OBS STUDIO, HANDBRAKE, SHOTWELL${RESET}"
 echo ""
 echo -e "${YELLOW}🚀 PLEASE REBOOT YOUR SYSTEM TO COMPLETE THE SETUP:${RESET}"
 echo -e "${YELLOW}   $ sudo reboot${RESET}"
