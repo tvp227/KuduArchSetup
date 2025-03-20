@@ -231,6 +231,13 @@ sed -i '/\[multilib\]/,/Include/s/^#//' /etc/pacman.conf
 
 # FINAL REPORT
 show_progress "SETUP COMPLETED SUCCESSFULLY!"
+
+# DISPLAY LOGO AT END AND WAIT
+display_logo
+echo -e "${YELLOW}Preparing final report...${RESET}"
+sleep 7
+
+# NOW SHOW THE FINAL REPORT
 echo ""
 echo -e "${GREEN}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${RESET}"
 echo -e "${GREEN}┃                     ${WHITE}KUDU ARCH LINUX SETUP COMPLETE${GREEN}                     ┃${RESET}"
@@ -256,6 +263,3 @@ echo -e "${YELLOW}🚀 PLEASE REBOOT YOUR SYSTEM TO COMPLETE THE SETUP:${RESET}"
 echo -e "${YELLOW}   $ sudo reboot${RESET}"
 echo ""
 echo -e "${BLUE}SETUP LOG HAS BEEN SAVED TO: $LOG_FILE${RESET}"
-
-# DISPLAY LOGO AT END
-display_logo
