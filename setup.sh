@@ -4,18 +4,90 @@
 # ======================================
 # CORE GNOME SETUP WITH DRACULA THEME AND ESSENTIAL TOOLS
 
+# DEFINE COLORS
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+WHITE='\033[1;37m'
+RESET='\033[0m'
+
+# DISPLAY ASCII ART
+display_logo() {
+    echo -e "${MAGENTA}"
+    cat << "EOF"
+                                          .@@@-                      -@@@.                                          
+                                        -@@@:@+                      +@-@@@-                                        
+                                       %@@@@@@-                      -@@@@@@#                                       
+                                     :@@@*@@=                          +@@+@@@                                      
+                                     @@@-@@:                            :@@:@@@                                     
+                                    *@@+@@*                              +@@*@@+                                    
+                                    @@@:@@:                              .@@.@@@                                    
+                                    @@.-@@=            -@@@@-            :@@..@@                                    
+                                    @@ :@@@        .@@@=+.:=#@@@         @@@  @@                                    
+                                    @@+  @@@    *@@@@+@%%*##@##%@@@=    %@@: :@@                                    
+                                    @@@@@@@@@@@@+@-@@@@#%@@=@@@%% @*@@%@@#@@@@@@                                    
+                                    :@@@@@@#@@=%+@@@:   @%@%   =@@@*%=@@@@@@@@@-                                    
+                                     +@ @@@@@#:#%       @#@#       @#=#@*@@@ @+                                     
+                              @@@@@@*.*@%@@@@@@@@@=     %*#*     -@@@@@@@*@@@=:#@@@@@*                              
+                              @@@@@@+@@@.@@@@@@@%+#@@@@@@@@@@@@@@+*@@@@@@@@.@@@=@@@@@@                              
+                              @@@:@@@@@@@@%##++@@%@@@@@@@@@@@@@@@@#@@##@#@@@@@@@@@.@@*                              
+                               @@@@@@@@@ @@@@@%@@@@@@:- -@@- :-@@@@@@@@@@@% @@@@@@@@@                               
+                               +@@@@ #@@@:*@@.@%@@@%  :-+%%+:.  %@@@=@.@@*:@@@+ @@@@.                               
+                               *@@@@@# @@@@@@@ @@@#     %#@#     %@@@ @@@@@@% @@@@@@.                               
+                               @@@@@@@@@@@@@@@@@@@@@@#  *+*+  %@@@@@@%@@@@@@@@@@@@=@=                               
+                               @@@@+@@@@@@@@@@@@@@@=@@@@=++-@@@@:@@@@@#@@@@@@@@@:@*@+                               
+                               @@@@   --.   .@@@@+@@@@@@*++#@@@@@@*@@@@    :=-   @#@*                               
+                               @@@@+-...:    @@@@@@@.@@@@++@@@@ @@@@@@@    : :.=*@%@%                               
+                               @@@@ + :: .    @@#@@@@@@@@==@@@@@@@@#@@      -- * @@@%                               
+                               @@@@+-  . .    @@@@@@*@@+==:+*@@-@@@%@@    . .  =*@@@@                               
+                               @@@@ -@@@@#%#- @@@@@@@@@*---=@@#@@@@@@@ :*%%@@@%  @@@@                               
+                               @@@@ =@:*-  := @@@@@ @@@@:--.@@@@:@@@@# =-  #*@@  @%@@                               
+                               @@@@ :@@@@%%#=*@@@@@@@@@@ .. @@@@@@@@@@=-#@@@@@%  @%@%                               
+                               @@@@      .   @@%%@@@@@@@    @@@@@@@@*@@          @%@%                               
+                               @@@@ -=.. .  :@@@@@@@@*@@-  *@@@@@@@@@@@.  . .-+- @%@%                               
+                               @@@@.:..=:.  @@@:@@@@@-@@@@@@@@.@@@@@:@@@  .:=- = @%@%                               
+                               @@@@ -=:.=. +@@-: @@@@@@@@@@@@@@@@@@ --@@= .-.:+- @@@%                               
+                               @@@@.--.=:.=@@@-#:+@+@@@%@@@@+@@@*@=:#-@@@-.:= ==.@%@#                               
+                               @@+@@.::*-.@@@  #:+@@-@@@%@@+@@@:@@=-# :@@@.=+.-:@@.@=                               
+                               -@@*@@@* .@@@.  -#--@@.@@@:-@@% @@=.#-  -@@%-.*@@++@@                                
+                                -@@@+#@@@@@@@:  #:=@@=.@@@@@@.=@@:-+  -@@@#@@%#%@@@.                                
+                                  .@@@# =+ @@@@%.%=*@@=      *@@*-# @@@@@:*+.%@@#                                   
+                                     =@@@#:*#.@@@@-=@@@@-  -@@@@==@@@@ *= %@@@:                                     
+                                        #@@@=*#=#@@@#%@@@@@@@@+@@@@-**=*@@@=                                        
+                                          .@@@% *# @@@@*@@@@-@@@@:#+-@@@#                                           
+                                             =@@@*=#*-@@@%@@@@ *= @@@@:                                             
+                                                %@@@:++:*@@=-+-*@@@=                                                
+                                                  :@@@% -::-.@@@#                                                   
+                                                     +@@@@@@@@:                                                     
+                                                        :*+.                                                        
+EOF
+    echo -e "${RESET}"
+    echo -e "${CYAN}╔════════════════════════════════════════════════════════════════════╗${RESET}"
+    echo -e "${CYAN}║                          ${WHITE}KUDU ARCH SETUP${CYAN}                           ║${RESET}"
+    echo -e "${CYAN}╚════════════════════════════════════════════════════════════════════╝${RESET}"
+    echo ""
+}
+
 # ENSURE SCRIPT IS RUN AS ROOT
 if [ "$EUID" -ne 0 ]; then
-  echo "PLEASE RUN AS ROOT"
+  echo -e "${RED}PLEASE RUN AS ROOT${RESET}"
   exit 1
 fi
 
 # FUNCTION TO DISPLAY PROGRESS
 show_progress() {
-  echo "--------------------------------------------"
-  echo "🚀 $1"
-  echo "--------------------------------------------"
+  echo ""
+  echo -e "${YELLOW}╔════════════════════════════════════════════════════════════════════╗${RESET}"
+  echo -e "${YELLOW}║ 🚀 ${GREEN}$1${YELLOW} ${RESET}"
+  echo -e "${YELLOW}╚════════════════════════════════════════════════════════════════════╝${RESET}"
+  echo ""
 }
+
+# DISPLAY LOGO AT START
+display_logo
 
 # SETUP LOGGING
 LOG_FILE="/var/log/kudu-setup.log"
@@ -160,23 +232,30 @@ sed -i '/\[multilib\]/,/Include/s/^#//' /etc/pacman.conf
 # FINAL REPORT
 show_progress "SETUP COMPLETED SUCCESSFULLY!"
 echo ""
-echo "YOUR KUDU ARCH LINUX SYSTEM HAS BEEN CONFIGURED WITH:"
-echo "✅ VANILLA GNOME DESKTOP ENVIRONMENT"
-echo "✅ DRACULA THEME APPLIED SYSTEM-WIDE"
-echo "✅ FLATPAK SUPPORT"
-echo "✅ CHROMIUM BROWSER"
-echo "✅ ZSH WITH POWERLEVEL10K THEME"
-echo "✅ GNOME EXTENSIONS: DASH TO DOCK, BLUR MY SHELL, VITALS, CAFFEINE, IMPATIENCE, APPINDICATOR"
-echo "✅ MICROSOFT TEAMS"
-echo "✅ VISUAL STUDIO CODE"
-echo "✅ POSTMAN"
-echo "✅ SPOTIFY"
-echo "✅ DISCORD"
-echo "✅ LIBREOFFICE"
-echo "✅ GNOME BOXES"
-echo "✅ MULTIMEDIA APPS: CHEESE, VLC, OBS STUDIO, HANDBRAKE, SHOTWELL"
+echo -e "${GREEN}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${RESET}"
+echo -e "${GREEN}┃                     ${WHITE}KUDU ARCH LINUX SETUP COMPLETE${GREEN}                     ┃${RESET}"
+echo -e "${GREEN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${RESET}"
 echo ""
-echo "🚀 PLEASE REBOOT YOUR SYSTEM TO COMPLETE THE SETUP:"
-echo "   $ sudo reboot"
+echo -e "${CYAN}YOUR KUDU ARCH LINUX SYSTEM HAS BEEN CONFIGURED WITH:${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}VANILLA GNOME DESKTOP ENVIRONMENT${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}DRACULA THEME APPLIED SYSTEM-WIDE${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}FLATPAK SUPPORT${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}CHROMIUM BROWSER${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}ZSH WITH POWERLEVEL10K THEME${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}GNOME EXTENSIONS: DASH TO DOCK, BLUR MY SHELL, VITALS, CAFFEINE, IMPATIENCE, APPINDICATOR${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}MICROSOFT TEAMS${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}VISUAL STUDIO CODE${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}POSTMAN${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}SPOTIFY${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}DISCORD${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}LIBREOFFICE${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}GNOME BOXES${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}MULTIMEDIA APPS: CHEESE, VLC, OBS STUDIO, HANDBRAKE, SHOTWELL${RESET}"
 echo ""
-echo "SETUP LOG HAS BEEN SAVED TO: $LOG_FILE"
+echo -e "${YELLOW}🚀 PLEASE REBOOT YOUR SYSTEM TO COMPLETE THE SETUP:${RESET}"
+echo -e "${YELLOW}   $ sudo reboot${RESET}"
+echo ""
+echo -e "${BLUE}SETUP LOG HAS BEEN SAVED TO: $LOG_FILE${RESET}"
+
+# DISPLAY LOGO AT END
+display_logo
