@@ -64,3 +64,15 @@ My personal Arch deployment script
 - **remove** - Remove packages
 - **cleanup** - Remove orphaned packages
 - **mirror** - Update mirror list
+
+
+---
+# Screenshots 
+1.![image](https://github.com/user-attachments/assets/52baf4f1-b8b8-478a-bb3a-1c6a9cf199c3)
+2.![image](https://github.com/user-attachments/assets/01bc02ca-1df9-4dc3-9ff5-c486b1b82599)
+3.![image](https://github.com/user-attachments/assets/85b0e8c0-f040-43ea-a459-37680ea0fdef)
+4.![image](https://github.com/user-attachments/assets/3733f86f-aa71-4575-9063-eb5895c8ecec)
+5.![image](https://github.com/user-attachments/assets/b8490a48-b4f5-4193-aa07-f58ec6e35b18)
+
+
+
