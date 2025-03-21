@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# KUDU SETUP SCRIPT 
-#---------------------#
+# KUDU SETUP SCRIPT - MINIMALIST VERSION
 
 # DEFINE COLORS
 RED='\033[0;31m'
@@ -128,7 +127,7 @@ pacman -S --noconfirm zsh zsh-completions flatpak
 
 # INSTALL SELECTED APPLICATIONS
 show_progress "INSTALLING SELECTED APPLICATIONS"
-pacman -S --noconfirm chromium discord
+pacman -S --noconfirm chromium discord gnome-boxes
 
 # SETUP FLATPAK
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -145,12 +144,54 @@ show_progress "INSTALLING AUR PACKAGES"
 # Changed teams to teams-for-linux
 sudo -u $USERNAME yay -S --noconfirm visual-studio-code-bin postman-bin teams-for-linux spotify
 
+# INSTALL CHROMIUM EXTENSIONS
+show_progress "INSTALLING UBLOCK ORIGIN FOR CHROMIUM"
+# Create the extension directory
+sudo -u $USERNAME mkdir -p /home/$USERNAME/.config/chromium/Default/Extensions/cjpalhdlnbpafiamejdnhcphjbkeiagm
+
+# Download and install uBlock Origin
+cd /tmp
+sudo -u $USERNAME wget -q https://github.com/gorhill/uBlock/releases/download/1.55.0/uBlock0_1.55.0.chromium.zip
+sudo -u $USERNAME unzip -q uBlock0_1.55.0.chromium.zip -d /home/$USERNAME/.config/chromium/Default/Extensions/cjpalhdlnbpafiamejdnhcphjbkeiagm
+
+# Create a preferences file to enable the extension
+sudo -u $USERNAME mkdir -p /home/$USERNAME/.config/chromium/Default
+cat > /home/$USERNAME/.config/chromium/Default/Preferences << EOF
+{
+  "extensions": {
+    "settings": {
+      "cjpalhdlnbpafiamejdnhcphjbkeiagm": {
+        "location": 1,
+        "manifest": {
+          "name": "uBlock Origin",
+          "version": "1.55.0"
+        },
+        "path": "cjpalhdlnbpafiamejdnhcphjbkeiagm",
+        "state": 1,
+        "granted_permissions": {
+          "api": ["storage", "tabs"],
+          "explicit_host": ["*://*/*"]
+        }
+      }
+    }
+  }
+}
+EOF
+chown $USERNAME:$USERNAME /home/$USERNAME/.config/chromium/Default/Preferences
+
 # INSTALL EXTENSION MANAGER
 show_progress "INSTALLING EXTENSION MANAGER FROM AUR"
 cd /tmp
 sudo -u $USERNAME git clone https://aur.archlinux.org/extension-manager.git
 cd extension-manager
 sudo -u $USERNAME makepkg -si --noconfirm
+
+# INSTALL VS CODE EXTENSIONS
+show_progress "INSTALLING VS CODE EXTENSIONS"
+sudo -u $USERNAME code --install-extension ms-python.python --force
+sudo -u $USERNAME code --install-extension golang.go --force
+sudo -u $USERNAME code --install-extension eamodio.gitlens --force
+sudo -u $USERNAME code --install-extension ms-azuretools.vscode-azurefunctions --force
 
 # INSTALL OH MY ZSH
 show_progress "SETTING UP ZSH WITH POWERLEVEL10K THEME"
@@ -227,6 +268,11 @@ sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface icon-the
 # Enable dark mode
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 
+# SET CHROMIUM AS DEFAULT BROWSER
+show_progress "SETTING CHROMIUM AS DEFAULT BROWSER"
+sudo -u $USERNAME xdg-settings set default-web-browser chromium.desktop
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.default-applications.browser exec 'chromium'
+
 # CONFIGURE GNOME TWEAKS - RESTORE MINIMIZE/MAXIMIZE BUTTONS
 show_progress "CONFIGURING GNOME TWEAKS"
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
@@ -278,12 +324,13 @@ echo -e "${WHITE}✅ ${MAGENTA}GNOME TWEAKS WITH RESTORED WINDOW BUTTONS${RESET}
 echo -e "${WHITE}✅ ${MAGENTA}EXTENSION MANAGER FROM AUR${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}ZSH WITH POWERLEVEL10K THEME${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}PACMAN ALIASES FOR EASIER SYSTEM MANAGEMENT${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}CHROMIUM BROWSER${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}CHROMIUM BROWSER (WITH UBLOCK ORIGIN)${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}TEAMS FOR LINUX${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}VISUAL STUDIO CODE${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}VISUAL STUDIO CODE WITH EXTENSIONS (PYTHON, GO, GITLENS, AZURE FUNCTIONS)${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}POSTMAN${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}SPOTIFY${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}DISCORD${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}GNOME BOXES FOR VIRTUALIZATION${RESET}"
 echo ""
 echo -e "${YELLOW}🚀 PLEASE REBOOT YOUR SYSTEM TO COMPLETE THE SETUP:${RESET}"
 echo -e "${YELLOW}   $ sudo reboot${RESET}"
