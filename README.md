@@ -55,7 +55,7 @@ My personal Arch deployment script
 
 ---
 
-## Useful Aliases
+## Useful Pacman Aliases
 
 - **update** - Update system
 - **install** - Install packages
