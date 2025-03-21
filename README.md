@@ -1,7 +1,8 @@
 # KuduArchSetup
 My personal Arch deployment script 
 
-![image](https://github.com/user-attachments/assets/47716adb-c2de-4be9-a3cc-455360f3af22)
+![image](https://github.com/user-attachments/assets/d1e19881-5d51-44a4-958a-858dac5a3350)
+
 
 # Kudu Arch Linux Setup Guide
 
