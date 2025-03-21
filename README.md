@@ -73,6 +73,8 @@ My personal Arch deployment script
 3.![image](https://github.com/user-attachments/assets/85b0e8c0-f040-43ea-a459-37680ea0fdef)
 4.![image](https://github.com/user-attachments/assets/3733f86f-aa71-4575-9063-eb5895c8ecec)
 5.![image](https://github.com/user-attachments/assets/b8490a48-b4f5-4193-aa07-f58ec6e35b18)
+6.![image](https://github.com/user-attachments/assets/0fd8c4ec-3941-429d-abb3-44f1ab83bed5)
+
 
 
 
