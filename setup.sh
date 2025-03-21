@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# KUDU SETUP SCRIPT - MINIMALIST VERSION
-# ======================================
-# CORE GNOME SETUP WITH DRACULA THEME AND ESSENTIAL TOOLS
+# KUDU SETUP SCRIPT 
+#---------------------#
 
 # DEFINE COLORS
 RED='\033[0;31m'
@@ -99,6 +98,12 @@ if [ "$USERNAME" = "root" ]; then
   USERNAME=$(find /home -mindepth 1 -maxdepth 1 -type d | head -n 1 | awk -F'/' '{print $NF}')
 fi
 
+# CONFIGURE SUDO TO NOT REQUIRE PASSWORD FOR THIS USER DURING INSTALLATION
+show_progress "CONFIGURING SUDO FOR PASSWORDLESS OPERATION DURING INSTALL"
+if ! grep -q "$USERNAME ALL=(ALL) NOPASSWD: ALL" /etc/sudoers; then
+  echo "$USERNAME ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+fi
+
 show_progress "STARTING KUDU SETUP WITH VANILLA GNOME CONFIGURATION"
 
 # UPDATE SYSTEM
@@ -137,7 +142,15 @@ sudo -u $USERNAME makepkg -si --noconfirm
 
 # INSTALL AUR PACKAGES
 show_progress "INSTALLING AUR PACKAGES"
-sudo -u $USERNAME yay -S --noconfirm visual-studio-code-bin postman-bin teams spotify
+# Changed teams to teams-for-linux
+sudo -u $USERNAME yay -S --noconfirm visual-studio-code-bin postman-bin teams-for-linux spotify
+
+# INSTALL EXTENSION MANAGER
+show_progress "INSTALLING EXTENSION MANAGER FROM AUR"
+cd /tmp
+sudo -u $USERNAME git clone https://aur.archlinux.org/extension-manager.git
+cd extension-manager
+sudo -u $USERNAME makepkg -si --noconfirm
 
 # INSTALL OH MY ZSH
 show_progress "SETTING UP ZSH WITH POWERLEVEL10K THEME"
@@ -181,8 +194,7 @@ chown $USERNAME:$USERNAME /home/$USERNAME/.zshrc
 chsh -s /bin/zsh $USERNAME
 
 # INSTALL GNOME EXTENSION MANAGER AND EXTENSIONS
-show_progress "INSTALLING GNOME EXTENSION MANAGER AND EXTENSIONS"
-sudo -u $USERNAME yay -S --noconfirm gnome-shell-extension-manager
+show_progress "INSTALLING GNOME BROWSER CONNECTOR"
 pacman -S --noconfirm gnome-browser-connector 
 
 # INSTALL PAPIRUS ICON THEME (WORKS WELL WITH DRACULA)
@@ -207,10 +219,13 @@ sudo -u $USERNAME git clone https://github.com/dracula/papirus-folders.git
 cd papirus-folders
 sudo -u $USERNAME ./install.sh
 
-# APPLY THEMES
+# APPLY THEMES AND SET DARK MODE
+show_progress "APPLYING THEMES AND SETTING DARK MODE"
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Dracula'
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.wm.preferences theme 'Dracula'
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus'
+# Enable dark mode
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 
 # CONFIGURE GNOME TWEAKS - RESTORE MINIMIZE/MAXIMIZE BUTTONS
 show_progress "CONFIGURING GNOME TWEAKS"
@@ -239,6 +254,10 @@ sed -i '/\[multilib\]/,/Include/s/^#//' /etc/pacman.conf
 # FINAL REPORT
 show_progress "SETUP COMPLETED SUCCESSFULLY!"
 
+# REVERT SUDO CONFIGURATION
+show_progress "REVERTING SUDO CONFIGURATION"
+sed -i "/^$USERNAME ALL=(ALL) NOPASSWD: ALL$/d" /etc/sudoers
+
 # DISPLAY LOGO AT END AND WAIT
 display_logo
 echo -e "${YELLOW}Preparing final report...${RESET}"
@@ -252,14 +271,15 @@ echo -e "${GREEN}┗━━━━━━━━━━━━━━━━━━━━
 echo ""
 echo -e "${CYAN}YOUR MINIMAL KUDU ARCH LINUX SYSTEM HAS BEEN CONFIGURED WITH:${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}MINIMAL GNOME DESKTOP ENVIRONMENT${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}DARK MODE ENABLED${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}DRACULA THEME WITH PAPIRUS ICONS${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}CUSTOM WALLPAPER${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}GNOME TWEAKS WITH RESTORED WINDOW BUTTONS${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}GNOME EXTENSION MANAGER${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}EXTENSION MANAGER FROM AUR${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}ZSH WITH POWERLEVEL10K THEME${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}PACMAN ALIASES FOR EASIER SYSTEM MANAGEMENT${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}CHROMIUM BROWSER${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}MICROSOFT TEAMS${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}TEAMS FOR LINUX${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}VISUAL STUDIO CODE${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}POSTMAN${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}SPOTIFY${RESET}"
