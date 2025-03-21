@@ -1,9 +1,6 @@
 #!/bin/bash
 
-# KUDU SETUP SCRIPT - MINIMALIST VERSION
-# ======================================
-# CORE GNOME SETUP WITH DRACULA THEME AND ESSENTIAL TOOLS
-
+# KUDU SETUP SCRIPT 
 # DEFINE COLORS
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -86,6 +83,27 @@ show_progress() {
   echo ""
 }
 
+# PROGRESS BAR FUNCTION
+progress_bar() {
+  local current=$1
+  local total=$2
+  local text=$3
+  local width=50
+  local percent=$((current * 100 / total))
+  local completed=$((width * current / total))
+  local remaining=$((width - completed))
+  
+  printf "\r[${GREEN}"
+  for ((i=0; i<completed; i++)); do printf "█"; done
+  printf "${RESET}"
+  for ((i=0; i<remaining; i++)); do printf "░"; done
+  printf "${RESET}] ${percent}%% - ${CYAN}${text}${RESET}"
+  
+  if [ $current -eq $total ]; then
+    echo ""
+  fi
+}
+
 # SETUP LOGGING
 LOG_FILE="/var/log/kudu-setup.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -115,27 +133,37 @@ pacman -Syu --noconfirm
 show_progress "INSTALLING MINIMAL BASE PACKAGES"
 pacman -S --noconfirm base-devel git sudo wget curl
 
+# SETUP TOTAL STEPS FOR PROGRESS BAR
+TOTAL_STEPS=25
+CURRENT_STEP=0
+
 # INSTALL MINIMAL GNOME
 show_progress "INSTALLING MINIMAL GNOME DESKTOP"
-pacman -S --noconfirm gnome-shell gdm gnome-terminal gnome-control-center gnome-tweaks gnome-keyring nautilus eog networkmanager xdg-user-dirs
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing minimal GNOME..."
+pacman -S --noconfirm gnome-shell gdm gnome-terminal gnome-control-center gnome-tweaks gnome-keyring nautilus networkmanager xdg-user-dirs
 
 # ENABLE GDM AND NETWORKMANAGER
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Enabling services..."
 systemctl enable gdm.service
 systemctl enable NetworkManager.service
 
 # INSTALL CORE UTILITIES
 show_progress "INSTALLING CORE UTILITIES"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing core utilities..."
 pacman -S --noconfirm zsh zsh-completions flatpak
 
 # INSTALL SELECTED APPLICATIONS
 show_progress "INSTALLING SELECTED APPLICATIONS"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing applications..."
 pacman -S --noconfirm chromium discord gnome-boxes
 
 # SETUP FLATPAK
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Setting up Flatpak..."
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 # INSTALL YAY AUR HELPER
 show_progress "INSTALLING YAY AUR HELPER"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing yay AUR helper..."
 cd /tmp
 sudo -u $USERNAME git clone https://aur.archlinux.org/yay.git
 cd yay
@@ -211,36 +239,67 @@ show_progress "INSTALLING GNOME SHELL EXTENSIONS"
 sudo -u $USERNAME mkdir -p /home/$USERNAME/.local/share/gnome-shell/extensions
 
 # Install Blur My Shell
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Blur My Shell extension..."
 cd /tmp
 sudo -u $USERNAME git clone https://github.com/aunetx/blur-my-shell.git
 cd blur-my-shell
 sudo -u $USERNAME make install
 
 # Install Impatience (faster animations)
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Impatience extension..."
 cd /tmp
 sudo -u $USERNAME git clone https://github.com/timbertson/gnome-shell-impatience.git
 cd gnome-shell-impatience
 sudo -u $USERNAME cp -r gnome-shell-impatience@gfxmonk.net /home/$USERNAME/.local/share/gnome-shell/extensions/
 
 # Install Caffeine
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Caffeine extension..."
 cd /tmp
 sudo -u $USERNAME yay -S --noconfirm gnome-shell-extension-caffeine
 
 # Install Dash to Dock
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Dash to Dock extension..."
 cd /tmp
+# Try AUR package first as it's more reliable
+sudo -u $USERNAME yay -S --noconfirm gnome-shell-extension-dash-to-dock
+# As fallback, also try from source to ensure it's available
 sudo -u $USERNAME git clone https://github.com/micheleg/dash-to-dock.git
 cd dash-to-dock
-sudo -u $USERNAME make
-sudo -u $USERNAME make install
+# Install build dependencies
+pacman -S --needed --noconfirm gettext sassc meson
+sudo -u $USERNAME meson -Dprefix=/home/$USERNAME/.local build
+sudo -u $USERNAME ninja -C build install
+
+# Install App Indicator Support
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing App Indicator extension..."
+cd /tmp
+sudo -u $USERNAME yay -S --noconfirm gnome-shell-extension-appindicator
+
+# Install Vitals
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Vitals extension..."
+cd /tmp
+sudo -u $USERNAME git clone https://github.com/corecoding/Vitals.git
+sudo -u $USERNAME cp -r Vitals/Vitals@CoreCoding.com /home/$USERNAME/.local/share/gnome-shell/extensions/
+
+# Install Compiz Effect
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Compiz magic lamp effect..."
+cd /tmp
+sudo -u $USERNAME git clone https://github.com/hermes83/compiz-alike-magic-lamp-effect.git
+sudo -u $USERNAME cp -r compiz-alike-magic-lamp-effect/compiz-alike-magic-lamp-effect@hermes83.github.com /home/$USERNAME/.local/share/gnome-shell/extensions/
 
 # Enable extensions
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Enabling extensions..."
 sudo -u $USERNAME dbus-launch gnome-extensions enable blur-my-shell@aunetx
 sudo -u $USERNAME dbus-launch gnome-extensions enable gnome-shell-impatience@gfxmonk.net
 sudo -u $USERNAME dbus-launch gnome-extensions enable caffeine@patapon.info
 sudo -u $USERNAME dbus-launch gnome-extensions enable dash-to-dock@micxgx.gmail.com
+sudo -u $USERNAME dbus-launch gnome-extensions enable appindicatorsupport@rgcjonas.gmail.com
+sudo -u $USERNAME dbus-launch gnome-extensions enable Vitals@CoreCoding.com
+sudo -u $USERNAME dbus-launch gnome-extensions enable compiz-alike-magic-lamp-effect@hermes83.github.com
 
 # INSTALL PAPIRUS ICON THEME (WORKS WELL WITH DRACULA)
 show_progress "INSTALLING PAPIRUS ICON THEME WITH DRACULA COLORS"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Papirus icon theme..."
 pacman -S --noconfirm papirus-icon-theme
 
 # INSTALL DRACULA THEME
@@ -251,11 +310,13 @@ sudo -u $USERNAME mkdir -p /home/$USERNAME/.themes
 sudo -u $USERNAME mkdir -p /home/$USERNAME/.icons
 
 # INSTALL DRACULA GTK THEME
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Dracula GTK theme..."
 cd /tmp
 sudo -u $USERNAME git clone https://github.com/dracula/gtk.git dracula-theme
 sudo -u $USERNAME cp -r dracula-theme /home/$USERNAME/.themes/Dracula
 
 # INSTALL DRACULA PAPIRUS FOLDER COLORS
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Dracula folder colors..."
 cd /tmp
 sudo -u $USERNAME git clone https://github.com/dracula/papirus-folders.git
 cd papirus-folders
@@ -263,6 +324,7 @@ sudo -u $USERNAME ./install.sh
 
 # APPLY THEMES AND SET DARK MODE
 show_progress "APPLYING THEMES AND SETTING DARK MODE"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Applying themes and dark mode..."
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Dracula'
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.wm.preferences theme 'Dracula'
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus'
@@ -271,21 +333,25 @@ sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface color-sc
 
 # SET CHROMIUM AS DEFAULT BROWSER
 show_progress "SETTING CHROMIUM AS DEFAULT BROWSER"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Setting Chromium as default browser..."
 sudo -u $USERNAME xdg-settings set default-web-browser chromium.desktop
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.default-applications.browser exec 'chromium'
 
 # CONFIGURE GNOME TWEAKS - RESTORE MINIMIZE/MAXIMIZE BUTTONS
 show_progress "CONFIGURING GNOME TWEAKS"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Configuring window buttons..."
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 
 # DOWNLOAD AND SET WALLPAPER
 show_progress "SETTING WALLPAPER"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Setting wallpaper..."
 wget -q "https://cdn.wallpapersafari.com/64/65/QhkeST.jpg" -O /home/$USERNAME/wallpaper.jpg
 chown $USERNAME:$USERNAME /home/$USERNAME/wallpaper.jpg
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.background picture-uri "file:///home/$USERNAME/wallpaper.jpg"
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.background picture-uri-dark "file:///home/$USERNAME/wallpaper.jpg"
 
 # SET GNOME TERMINAL TO USE DRACULA COLORS
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Configuring terminal colors..."
 profile=$(sudo -u $USERNAME dbus-launch gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'")
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ background-color '#282A36'
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ foreground-color '#F8F8F2'
@@ -294,6 +360,7 @@ sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/o
 
 # OPTIMIZE PACMAN
 show_progress "OPTIMIZING PACMAN"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Optimizing Pacman..."
 sed -i 's/#Color/Color/' /etc/pacman.conf
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 10/' /etc/pacman.conf
 sed -i '/\[multilib\]/,/Include/s/^#//' /etc/pacman.conf
@@ -311,6 +378,7 @@ echo ""
 
 # FINAL REPORT
 show_progress "SETUP COMPLETED SUCCESSFULLY!"
+progress_bar $TOTAL_STEPS $TOTAL_STEPS "Setup complete!"
 
 # REVERT SUDO CONFIGURATION
 show_progress "REVERTING SUDO CONFIGURATION"
@@ -333,7 +401,7 @@ echo -e "${WHITE}✅ ${MAGENTA}DARK MODE ENABLED${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}DRACULA THEME WITH PAPIRUS ICONS${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}CUSTOM WALLPAPER${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}GNOME TWEAKS WITH RESTORED WINDOW BUTTONS${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}GNOME EXTENSIONS (BLUR MY SHELL, IMPATIENCE, CAFFEINE, DASH TO DOCK)${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}GNOME EXTENSIONS (BLUR MY SHELL, IMPATIENCE, CAFFEINE, DASH TO DOCK, VITALS, APP INDICATOR, COMPIZ EFFECT)${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}ZSH WITH POWERLEVEL10K THEME${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}PACMAN ALIASES FOR EASIER SYSTEM MANAGEMENT${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}CHROMIUM BROWSER (DEFAULT)${RESET}"
