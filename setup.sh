@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # KUDU SETUP SCRIPT - MINIMALIST VERSION
+# ======================================
+# CORE GNOME SETUP WITH DRACULA THEME AND ESSENTIAL TOOLS
 
 # DEFINE COLORS
 RED='\033[0;31m'
@@ -144,41 +146,6 @@ show_progress "INSTALLING AUR PACKAGES"
 # Changed teams to teams-for-linux
 sudo -u $USERNAME yay -S --noconfirm visual-studio-code-bin postman-bin teams-for-linux spotify
 
-# INSTALL CHROMIUM EXTENSIONS
-show_progress "INSTALLING UBLOCK ORIGIN FOR CHROMIUM"
-# Create the extension directory
-sudo -u $USERNAME mkdir -p /home/$USERNAME/.config/chromium/Default/Extensions/cjpalhdlnbpafiamejdnhcphjbkeiagm
-
-# Download and install uBlock Origin
-cd /tmp
-sudo -u $USERNAME wget -q https://github.com/gorhill/uBlock/releases/download/1.55.0/uBlock0_1.55.0.chromium.zip
-sudo -u $USERNAME unzip -q uBlock0_1.55.0.chromium.zip -d /home/$USERNAME/.config/chromium/Default/Extensions/cjpalhdlnbpafiamejdnhcphjbkeiagm
-
-# Create a preferences file to enable the extension
-sudo -u $USERNAME mkdir -p /home/$USERNAME/.config/chromium/Default
-cat > /home/$USERNAME/.config/chromium/Default/Preferences << EOF
-{
-  "extensions": {
-    "settings": {
-      "cjpalhdlnbpafiamejdnhcphjbkeiagm": {
-        "location": 1,
-        "manifest": {
-          "name": "uBlock Origin",
-          "version": "1.55.0"
-        },
-        "path": "cjpalhdlnbpafiamejdnhcphjbkeiagm",
-        "state": 1,
-        "granted_permissions": {
-          "api": ["storage", "tabs"],
-          "explicit_host": ["*://*/*"]
-        }
-      }
-    }
-  }
-}
-EOF
-chown $USERNAME:$USERNAME /home/$USERNAME/.config/chromium/Default/Preferences
-
 # INSTALL EXTENSION MANAGER
 show_progress "INSTALLING EXTENSION MANAGER FROM AUR"
 cd /tmp
@@ -235,8 +202,42 @@ chown $USERNAME:$USERNAME /home/$USERNAME/.zshrc
 chsh -s /bin/zsh $USERNAME
 
 # INSTALL GNOME EXTENSION MANAGER AND EXTENSIONS
-show_progress "INSTALLING GNOME BROWSER CONNECTOR"
-pacman -S --noconfirm gnome-browser-connector 
+show_progress "INSTALLING GNOME BROWSER CONNECTOR AND EXTENSIONS"
+pacman -S --noconfirm gnome-browser-connector
+
+# Install GNOME Extensions
+show_progress "INSTALLING GNOME SHELL EXTENSIONS"
+# Create extensions directory
+sudo -u $USERNAME mkdir -p /home/$USERNAME/.local/share/gnome-shell/extensions
+
+# Install Blur My Shell
+cd /tmp
+sudo -u $USERNAME git clone https://github.com/aunetx/blur-my-shell.git
+cd blur-my-shell
+sudo -u $USERNAME make install
+
+# Install Impatience (faster animations)
+cd /tmp
+sudo -u $USERNAME git clone https://github.com/timbertson/gnome-shell-impatience.git
+cd gnome-shell-impatience
+sudo -u $USERNAME cp -r gnome-shell-impatience@gfxmonk.net /home/$USERNAME/.local/share/gnome-shell/extensions/
+
+# Install Caffeine
+cd /tmp
+sudo -u $USERNAME yay -S --noconfirm gnome-shell-extension-caffeine
+
+# Install Dash to Dock
+cd /tmp
+sudo -u $USERNAME git clone https://github.com/micheleg/dash-to-dock.git
+cd dash-to-dock
+sudo -u $USERNAME make
+sudo -u $USERNAME make install
+
+# Enable extensions
+sudo -u $USERNAME dbus-launch gnome-extensions enable blur-my-shell@aunetx
+sudo -u $USERNAME dbus-launch gnome-extensions enable gnome-shell-impatience@gfxmonk.net
+sudo -u $USERNAME dbus-launch gnome-extensions enable caffeine@patapon.info
+sudo -u $USERNAME dbus-launch gnome-extensions enable dash-to-dock@micxgx.gmail.com
 
 # INSTALL PAPIRUS ICON THEME (WORKS WELL WITH DRACULA)
 show_progress "INSTALLING PAPIRUS ICON THEME WITH DRACULA COLORS"
@@ -297,6 +298,17 @@ sed -i 's/#Color/Color/' /etc/pacman.conf
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 10/' /etc/pacman.conf
 sed -i '/\[multilib\]/,/Include/s/^#//' /etc/pacman.conf
 
+# Display Pacman Aliases Info
+show_progress "PACMAN ALIASES CONFIGURED"
+echo -e "${CYAN}The following Pacman aliases have been configured:${RESET}"
+echo -e "${WHITE}• ${GREEN}update${RESET} - Update system packages"
+echo -e "${WHITE}• ${GREEN}install${RESET} - Install packages"
+echo -e "${WHITE}• ${GREEN}search${RESET} - Search for packages"
+echo -e "${WHITE}• ${GREEN}remove${RESET} - Remove packages"
+echo -e "${WHITE}• ${GREEN}cleanup${RESET} - Remove orphaned packages"
+echo -e "${WHITE}• ${GREEN}mirror${RESET} - Update mirror list"
+echo ""
+
 # FINAL REPORT
 show_progress "SETUP COMPLETED SUCCESSFULLY!"
 
@@ -321,10 +333,10 @@ echo -e "${WHITE}✅ ${MAGENTA}DARK MODE ENABLED${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}DRACULA THEME WITH PAPIRUS ICONS${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}CUSTOM WALLPAPER${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}GNOME TWEAKS WITH RESTORED WINDOW BUTTONS${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}EXTENSION MANAGER FROM AUR${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}GNOME EXTENSIONS (BLUR MY SHELL, IMPATIENCE, CAFFEINE, DASH TO DOCK)${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}ZSH WITH POWERLEVEL10K THEME${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}PACMAN ALIASES FOR EASIER SYSTEM MANAGEMENT${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}CHROMIUM BROWSER (WITH UBLOCK ORIGIN)${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}CHROMIUM BROWSER (DEFAULT)${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}TEAMS FOR LINUX${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}VISUAL STUDIO CODE WITH EXTENSIONS (PYTHON, GO, GITLENS, AZURE FUNCTIONS)${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}POSTMAN${RESET}"
