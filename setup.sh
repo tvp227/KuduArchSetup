@@ -297,39 +297,37 @@ sudo -u $USERNAME dbus-launch gnome-extensions enable appindicatorsupport@rgcjon
 sudo -u $USERNAME dbus-launch gnome-extensions enable Vitals@CoreCoding.com
 sudo -u $USERNAME dbus-launch gnome-extensions enable compiz-alike-magic-lamp-effect@hermes83.github.com
 
-# INSTALL PAPIRUS ICON THEME
-show_progress "INSTALLING PAPIRUS ICON THEME WITH DARK COLORS"
+# INSTALL PAPIRUS ICON THEME (WORKS WELL WITH DRACULA)
+show_progress "INSTALLING PAPIRUS ICON THEME WITH DRACULA COLORS"
 progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Papirus icon theme..."
 pacman -S --noconfirm papirus-icon-theme
 
-# INSTALL NORDIC DARKER THEME (DARKER THAN DRACULA)
-show_progress "INSTALLING NORDIC DARKER THEME"
+# INSTALL DRACULA THEME
+show_progress "INSTALLING DRACULA THEME"
 
 # CREATE THEMES DIRECTORY
 sudo -u $USERNAME mkdir -p /home/$USERNAME/.themes
 sudo -u $USERNAME mkdir -p /home/$USERNAME/.icons
 
-# INSTALL NORDIC DARKER THEME
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Nordic Darker theme..."
+# INSTALL DRACULA GTK THEME
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Dracula GTK theme..."
 cd /tmp
-sudo -u $USERNAME git clone https://github.com/EliverLara/Nordic.git
-sudo -u $USERNAME cp -r Nordic /home/$USERNAME/.themes/
+sudo -u $USERNAME git clone https://github.com/dracula/gtk.git dracula-theme
+sudo -u $USERNAME cp -r dracula-theme /home/$USERNAME/.themes/Dracula
 
-# INSTALL CUSTOM DARKER PAPIRUS FOLDER COLORS
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing dark folder colors..."
+# INSTALL DRACULA PAPIRUS FOLDER COLORS
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Dracula folder colors..."
 cd /tmp
-sudo -u $USERNAME git clone https://github.com/PapirusDevelopmentTeam/papirus-folders.git
+sudo -u $USERNAME git clone https://github.com/dracula/papirus-folders.git
 cd papirus-folders
 sudo -u $USERNAME ./install.sh
-# Apply very dark color scheme
-sudo -u $USERNAME papirus-folders -C black --theme Papirus-Dark
 
 # APPLY THEMES AND SET DARK MODE
 show_progress "APPLYING THEMES AND SETTING DARK MODE"
 progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Applying themes and dark mode..."
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Nordic'
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.wm.preferences theme 'Nordic'
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Dracula'
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.wm.preferences theme 'Dracula'
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus'
 # Enable dark mode
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 
@@ -344,22 +342,21 @@ show_progress "CONFIGURING GNOME TWEAKS"
 progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Configuring window buttons..."
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 
-# DOWNLOAD AND SET WALLPAPER FROM REPOSITORY
+# DOWNLOAD AND SET WALLPAPER
 show_progress "SETTING WALLPAPER"
 progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Setting wallpaper..."
-wget -q "https://raw.githubusercontent.com/tvp227/KuduArchSetup/main/wallpaper.jpg" -O /home/$USERNAME/wallpaper.jpg
+wget -q "https://cdn.wallpapersafari.com/64/65/QhkeST.jpg" -O /home/$USERNAME/wallpaper.jpg
 chown $USERNAME:$USERNAME /home/$USERNAME/wallpaper.jpg
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.background picture-uri "file:///home/$USERNAME/wallpaper.jpg"
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.background picture-uri-dark "file:///home/$USERNAME/wallpaper.jpg"
 
-# SET GNOME TERMINAL TO USE DARKER COLORS (DARKER THAN DRACULA)
+# SET GNOME TERMINAL TO USE DRACULA COLORS
 progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Configuring terminal colors..."
 profile=$(sudo -u $USERNAME dbus-launch gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'")
-# Using Nordic darker colors - even darker than Dracula
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ background-color '#1e1e20'
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ foreground-color '#e5e9f0'
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ background-color '#282A36'
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ foreground-color '#F8F8F2'
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ use-theme-colors false
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ palette "['#1a1a1a', '#bf616a', '#a3be8c', '#ebcb8b', '#81a1c1', '#b48ead', '#88c0d0', '#e5e9f0', '#4c566a', '#bf616a', '#a3be8c', '#ebcb8b', '#81a1c1', '#b48ead', '#8fbcbb', '#eceff4']"
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ palette "['#262626', '#E356A7', '#42E66C', '#E4F34A', '#9B6BDF', '#E64747', '#75D7EC', '#EFA554', '#7A7A7A', '#FF79C6', '#50FA7B', '#F1FA8C', '#BD93F9', '#FF5555', '#8BE9FD', '#FFB86C']"
 
 # OPTIMIZE PACMAN
 show_progress "OPTIMIZING PACMAN"
@@ -401,8 +398,8 @@ echo ""
 echo -e "${CYAN}YOUR MINIMAL KUDU ARCH LINUX SYSTEM HAS BEEN CONFIGURED WITH:${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}MINIMAL GNOME DESKTOP ENVIRONMENT${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}DARK MODE ENABLED${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}NORDIC DARKER THEME WITH PAPIRUS DARK ICONS${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}CUSTOM WALLPAPER FROM REPOSITORY${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}DRACULA THEME WITH PAPIRUS ICONS${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}CUSTOM WALLPAPER${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}GNOME TWEAKS WITH RESTORED WINDOW BUTTONS${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}GNOME EXTENSIONS (BLUR MY SHELL, IMPATIENCE, CAFFEINE, DASH TO DOCK, VITALS, APP INDICATOR, COMPIZ EFFECT)${RESET}"
 echo -e "${WHITE}✅ ${MAGENTA}ZSH WITH POWERLEVEL10K THEME${RESET}"
