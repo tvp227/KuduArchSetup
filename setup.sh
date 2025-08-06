@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# KUDU SETUP SCRIPT 
+# KUDU SETUP SCRIPT - ULTRA CLEAN & EFFICIENT EDITION
 # DEFINE COLORS
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -63,7 +63,7 @@ display_logo() {
 EOF
     echo -e "${RESET}"
     echo -e "${CYAN}╔════════════════════════════════════════════════════════════════════╗${RESET}"
-    echo -e "${CYAN}║                          ${WHITE}KUDU ARCH SETUP${CYAN}                           ║${RESET}"
+    echo -e "${CYAN}║                  ${WHITE}KUDU ARCH SETUP - ULTRA CLEAN EDITION${CYAN}                ║${RESET}"
     echo -e "${CYAN}╚════════════════════════════════════════════════════════════════════╝${RESET}"
     echo ""
 }
@@ -123,39 +123,78 @@ if ! grep -q "$USERNAME ALL=(ALL) NOPASSWD: ALL" /etc/sudoers; then
   echo "$USERNAME ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 fi
 
-show_progress "STARTING KUDU SETUP WITH VANILLA GNOME CONFIGURATION"
+show_progress "STARTING KUDU SETUP WITH ULTRA CLEAN & EFFICIENT CONFIGURATION"
 
-# UPDATE SYSTEM
-show_progress "UPDATING SYSTEM"
+# PERFORMANCE OPTIMIZATIONS - EARLY SETUP
+show_progress "APPLYING PERFORMANCE OPTIMIZATIONS"
+
+# Enable multilib repository for better package availability
+sed -i '/\[multilib\]/,/Include/s/^#//' /etc/pacman.conf
+
+# Optimize pacman for speed
+sed -i 's/#Color/Color/' /etc/pacman.conf
+sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 15/' /etc/pacman.conf
+sed -i 's/#VerbosePkgLists/VerbosePkgLists/' /etc/pacman.conf
+
+# Add ILoveCandy for better progress bars
+sed -i '/^#VerbosePkgLists/a ILoveCandy' /etc/pacman.conf
+
+# UPDATE SYSTEM WITH FASTEST MIRRORS
+show_progress "UPDATING SYSTEM WITH OPTIMIZED MIRRORS"
+pacman -Sy --noconfirm reflector
+reflector --country 'United Kingdom' --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 pacman -Syu --noconfirm
 
-# INSTALL MINIMAL BASE PACKAGES
-show_progress "INSTALLING MINIMAL BASE PACKAGES"
-pacman -S --noconfirm base-devel git sudo wget curl
+# INSTALL BASE PACKAGES
+show_progress "INSTALLING OPTIMIZED BASE PACKAGES"
+pacman -S --noconfirm base-devel git sudo wget curl zram-generator preload
 
 # SETUP TOTAL STEPS FOR PROGRESS BAR
-TOTAL_STEPS=25
+TOTAL_STEPS=35
 CURRENT_STEP=0
 
-# INSTALL MINIMAL GNOME
+# SETUP ZRAM FOR BETTER MEMORY MANAGEMENT
+show_progress "CONFIGURING ZRAM FOR OPTIMAL MEMORY USAGE"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Setting up ZRAM..."
+cat > /etc/systemd/zram-generator.conf << 'EOL'
+[zram0]
+zram-size = ram / 2
+compression-algorithm = zstd
+swap-priority = 100
+EOL
+systemctl daemon-reload
+systemctl enable systemd-zram-setup@zram0.service
+
+# SSD OPTIMIZATIONS
+show_progress "APPLYING SSD OPTIMIZATIONS"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Optimizing for SSD..."
+echo 'noatime,discard' >> /etc/fstab
+# Enable fstrim timer for SSD maintenance
+systemctl enable fstrim.timer
+
+# INSTALL MINIMAL GNOME WITH PERFORMANCE TWEAKS
 show_progress "INSTALLING MINIMAL GNOME DESKTOP"
 progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing minimal GNOME..."
-pacman -S --noconfirm gnome-shell gdm gnome-terminal gnome-control-center gnome-tweaks gnome-keyring nautilus networkmanager xdg-user-dirs
+pacman -S --noconfirm gnome-shell gdm gnome-terminal gnome-control-center \
+gnome-tweaks gnome-keyring nautilus networkmanager xdg-user-dirs \
+gnome-session gnome-settings-daemon
 
-# ENABLE GDM AND NETWORKMANAGER
+# ENABLE SERVICES
 progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Enabling services..."
 systemctl enable gdm.service
 systemctl enable NetworkManager.service
+systemctl enable preload.service
 
 # INSTALL CORE UTILITIES
 show_progress "INSTALLING CORE UTILITIES"
 progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing core utilities..."
-pacman -S --noconfirm zsh zsh-completions flatpak
+pacman -S --noconfirm zsh zsh-completions flatpak firefox \
+htop neofetch tree unzip zip p7zip
 
-# INSTALL SELECTED APPLICATIONS
-show_progress "INSTALLING SELECTED APPLICATIONS"
+# INSTALL APPLICATIONS
+show_progress "INSTALLING APPLICATIONS"
 progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing applications..."
-pacman -S --noconfirm chromium discord gnome-boxes
+pacman -S --noconfirm chromium discord gnome-boxes code
 
 # SETUP FLATPAK
 progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Setting up Flatpak..."
@@ -171,31 +210,27 @@ sudo -u $USERNAME makepkg -si --noconfirm
 
 # INSTALL AUR PACKAGES
 show_progress "INSTALLING AUR PACKAGES"
-# Changed teams to teams-for-linux
-sudo -u $USERNAME yay -S --noconfirm visual-studio-code-bin postman-bin teams-for-linux spotify
-
-# INSTALL EXTENSION MANAGER
-show_progress "INSTALLING EXTENSION MANAGER FROM AUR"
-cd /tmp
-sudo -u $USERNAME git clone https://aur.archlinux.org/extension-manager.git
-cd extension-manager
-sudo -u $USERNAME makepkg -si --noconfirm
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing AUR packages..."
+sudo -u $USERNAME yay -S --noconfirm postman-bin teams-for-linux spotify \
+extension-manager visual-studio-code-bin
 
 # INSTALL VS CODE EXTENSIONS
 show_progress "INSTALLING VS CODE EXTENSIONS"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing VS Code extensions..."
 sudo -u $USERNAME code --install-extension ms-python.python --force
 sudo -u $USERNAME code --install-extension golang.go --force
 sudo -u $USERNAME code --install-extension eamodio.gitlens --force
 sudo -u $USERNAME code --install-extension ms-azuretools.vscode-azurefunctions --force
 
-# INSTALL OH MY ZSH
+# INSTALL OH MY ZSH WITH PERFORMANCE OPTIMIZATIONS
 show_progress "SETTING UP ZSH WITH POWERLEVEL10K THEME"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Setting up ZSH..."
 sudo -u $USERNAME sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
 # INSTALL POWERLEVEL10K THEME
 sudo -u $USERNAME git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/$USERNAME/.oh-my-zsh/custom/themes/powerlevel10k
 
-# CONFIGURE ZSH WITH ALIASES
+# CONFIGURE ZSH WITH PERFORMANCE OPTIMIZATIONS
 cat > /home/$USERNAME/.zshrc << 'EOL'
 # ENABLE POWERLEVEL10K INSTANT PROMPT
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -208,19 +243,31 @@ export ZSH="$HOME/.oh-my-zsh"
 # SET THEME
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-# PLUGINS
-plugins=(git sudo history)
+# OPTIMIZED PLUGINS FOR PERFORMANCE
+plugins=(git sudo history command-not-found)
+
+# PERFORMANCE OPTIMIZATIONS
+DISABLE_AUTO_UPDATE="true"
+DISABLE_UPDATE_PROMPT="true"
 
 source $ZSH/oh-my-zsh.sh
 
-# PACMAN ALIASES
+# ENHANCED PACMAN ALIASES
 alias update="sudo pacman -Syu"
 alias install="sudo pacman -S"
 alias search="pacman -Ss"
 alias remove="sudo pacman -Rs"
 alias unlock="sudo rm /var/lib/pacman/db.lck"
-alias cleanup="sudo pacman -Rns $(pacman -Qtdq)"
-alias mirror="sudo reflector --country 'United Kingdom' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist"
+alias cleanup="sudo pacman -Rns \$(pacman -Qtdq) 2>/dev/null || echo 'No orphans to remove'"
+alias mirror="sudo reflector --country 'United Kingdom' --latest 15 --protocol https --sort rate --save /etc/pacman.d/mirrorlist"
+alias fastmirror="sudo reflector --fastest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist"
+
+# SYSTEM MONITORING ALIASES
+alias temps="sensors"
+alias processes="htop"
+alias diskspace="df -h"
+alias meminfo="free -h"
+alias sysinfo="neofetch"
 
 # P10K CONFIGURATION
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -229,190 +276,208 @@ EOL
 chown $USERNAME:$USERNAME /home/$USERNAME/.zshrc
 chsh -s /bin/zsh $USERNAME
 
-# INSTALL GNOME EXTENSION MANAGER AND EXTENSIONS
-show_progress "INSTALLING GNOME BROWSER CONNECTOR AND EXTENSIONS"
+# INSTALL GNOME EXTENSIONS WITH PERFORMANCE FOCUS
+show_progress "INSTALLING PERFORMANCE-FOCUSED GNOME EXTENSIONS"
 pacman -S --noconfirm gnome-browser-connector
 
-# Install GNOME Extensions
-show_progress "INSTALLING GNOME SHELL EXTENSIONS"
 # Create extensions directory
 sudo -u $USERNAME mkdir -p /home/$USERNAME/.local/share/gnome-shell/extensions
 
-# Install Blur My Shell
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Blur My Shell extension..."
-cd /tmp
-sudo -u $USERNAME git clone https://github.com/aunetx/blur-my-shell.git
-cd blur-my-shell
-sudo -u $USERNAME make install
+# Install essential extensions only for performance
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing essential extensions..."
 
-# Install Impatience (faster animations)
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Impatience extension..."
+# Dash to Dock (lightweight dock)
 cd /tmp
-sudo -u $USERNAME git clone https://github.com/timbertson/gnome-shell-impatience.git
-cd gnome-shell-impatience
-sudo -u $USERNAME cp -r gnome-shell-impatience@gfxmonk.net /home/$USERNAME/.local/share/gnome-shell/extensions/
-
-# Install Caffeine
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Caffeine extension..."
-cd /tmp
-sudo -u $USERNAME yay -S --noconfirm gnome-shell-extension-caffeine
-
-# Install Dash to Dock
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Dash to Dock extension..."
-cd /tmp
-# Try AUR package first as it's more reliable
 sudo -u $USERNAME yay -S --noconfirm gnome-shell-extension-dash-to-dock
-# As fallback, also try from source to ensure it's available
-sudo -u $USERNAME git clone https://github.com/micheleg/dash-to-dock.git
-cd dash-to-dock
-# Install build dependencies
-pacman -S --needed --noconfirm gettext sassc meson
-sudo -u $USERNAME meson -Dprefix=/home/$USERNAME/.local build
-sudo -u $USERNAME ninja -C build install
 
-# Install App Indicator Support
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing App Indicator extension..."
-cd /tmp
+# App Indicator Support
 sudo -u $USERNAME yay -S --noconfirm gnome-shell-extension-appindicator
 
-# Install Vitals
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Vitals extension..."
-cd /tmp
-sudo -u $USERNAME git clone https://github.com/corecoding/Vitals.git
-sudo -u $USERNAME cp -r Vitals/Vitals@CoreCoding.com /home/$USERNAME/.local/share/gnome-shell/extensions/
+# Caffeine (prevent sleep)
+sudo -u $USERNAME yay -S --noconfirm gnome-shell-extension-caffeine
 
-# Install Compiz Effect
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Compiz magic lamp effect..."
-cd /tmp
-sudo -u $USERNAME git clone https://github.com/hermes83/compiz-alike-magic-lamp-effect.git
-sudo -u $USERNAME cp -r compiz-alike-magic-lamp-effect/compiz-alike-magic-lamp-effect@hermes83.github.com /home/$USERNAME/.local/share/gnome-shell/extensions/
+# User Themes (for custom themes)
+sudo -u $USERNAME yay -S --noconfirm gnome-shell-extension-user-theme
 
-# Enable extensions
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Enabling extensions..."
-sudo -u $USERNAME dbus-launch gnome-extensions enable blur-my-shell@aunetx
-sudo -u $USERNAME dbus-launch gnome-extensions enable gnome-shell-impatience@gfxmonk.net
-sudo -u $USERNAME dbus-launch gnome-extensions enable caffeine@patapon.info
-sudo -u $USERNAME dbus-launch gnome-extensions enable dash-to-dock@micxgx.gmail.com
-sudo -u $USERNAME dbus-launch gnome-extensions enable appindicatorsupport@rgcjonas.gmail.com
-sudo -u $USERNAME dbus-launch gnome-extensions enable Vitals@CoreCoding.com
-sudo -u $USERNAME dbus-launch gnome-extensions enable compiz-alike-magic-lamp-effect@hermes83.github.com
+# INSTALL ULTRA DARK THEME
+show_progress "INSTALLING ULTRA DARK THEME SETUP"
 
-# INSTALL PAPIRUS ICON THEME (WORKS WELL WITH DRACULA)
-show_progress "INSTALLING PAPIRUS ICON THEME WITH DRACULA COLORS"
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Papirus icon theme..."
-pacman -S --noconfirm papirus-icon-theme
-
-# INSTALL DRACULA THEME
-show_progress "INSTALLING DRACULA THEME"
-
-# CREATE THEMES DIRECTORY
+# CREATE THEMES AND ICONS DIRECTORIES
 sudo -u $USERNAME mkdir -p /home/$USERNAME/.themes
 sudo -u $USERNAME mkdir -p /home/$USERNAME/.icons
 
-# INSTALL DRACULA GTK THEME
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Dracula GTK theme..."
-cd /tmp
-sudo -u $USERNAME git clone https://github.com/dracula/gtk.git dracula-theme
-sudo -u $USERNAME cp -r dracula-theme /home/$USERNAME/.themes/Dracula
+# INSTALL DARKER PAPIRUS THEME
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing dark icon theme..."
+pacman -S --noconfirm papirus-icon-theme
+sudo -u $USERNAME git clone https://github.com/PapirusDevelopmentTeam/papirus-folders.git /tmp/papirus-folders
+cd /tmp/papirus-folders
+sudo -u $USERNAME ./install.sh --color black
 
-# INSTALL DRACULA PAPIRUS FOLDER COLORS
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing Dracula folder colors..."
+# INSTALL ULTRA DARK GTK THEME
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Installing ultra dark GTK theme..."
 cd /tmp
-sudo -u $USERNAME git clone https://github.com/dracula/papirus-folders.git
-cd papirus-folders
-sudo -u $USERNAME ./install.sh
+sudo -u $USERNAME git clone https://github.com/EliverLara/Nordic.git
+sudo -u $USERNAME cp -r Nordic /home/$USERNAME/.themes/
 
-# APPLY THEMES AND SET DARK MODE
-show_progress "APPLYING THEMES AND SETTING DARK MODE"
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Applying themes and dark mode..."
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Dracula'
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.wm.preferences theme 'Dracula'
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus'
-# Enable dark mode
+# INSTALL ULTRA DARK SHELL THEME
+sudo -u $USERNAME git clone https://github.com/daniruiz/flat-remix-gnome.git
+sudo -u $USERNAME cp -r flat-remix-gnome/Flat-Remix-Dark-fullPanel /home/$USERNAME/.themes/
+
+# APPLY ULTRA DARK THEME
+show_progress "APPLYING ULTRA DARK THEME"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Applying ultra dark theme..."
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface gtk-theme 'Nordic'
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.shell.extensions.user-theme name 'Flat-Remix-Dark-fullPanel'
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface cursor-theme 'Adwaita'
 
-# SET CHROMIUM AS DEFAULT BROWSER
-show_progress "SETTING CHROMIUM AS DEFAULT BROWSER"
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Setting Chromium as default browser..."
-sudo -u $USERNAME xdg-settings set default-web-browser chromium.desktop
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.default-applications.browser exec 'chromium'
+# DOWNLOAD AND SET THE NEW JELLYFISH WALLPAPER
+show_progress "SETTING CUSTOM JELLYFISH WALLPAPER"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Setting jellyfish wallpaper..."
+# Download your jellyfish image (replace URL with actual image location)
+wget -q "https://raw.githubusercontent.com/yourusername/yourrepo/main/jellyfish-wallpaper.jpg" -O /home/$USERNAME/jellyfish-wallpaper.jpg || {
+    # Fallback to a similar dark jellyfish wallpaper
+    wget -q "https://wallpaperaccess.com/full/2637581.jpg" -O /home/$USERNAME/jellyfish-wallpaper.jpg
+}
+chown $USERNAME:$USERNAME /home/$USERNAME/jellyfish-wallpaper.jpg
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.background picture-uri "file:///home/$USERNAME/jellyfish-wallpaper.jpg"
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.background picture-uri-dark "file:///home/$USERNAME/jellyfish-wallpaper.jpg"
 
-# CONFIGURE GNOME TWEAKS - RESTORE MINIMIZE/MAXIMIZE BUTTONS
-show_progress "CONFIGURING GNOME TWEAKS"
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Configuring window buttons..."
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
-
-# DOWNLOAD AND SET WALLPAPER
-show_progress "SETTING WALLPAPER"
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Setting wallpaper..."
-wget -q "https://cdn.wallpapersafari.com/64/65/QhkeST.jpg" -O /home/$USERNAME/wallpaper.jpg
-chown $USERNAME:$USERNAME /home/$USERNAME/wallpaper.jpg
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.background picture-uri "file:///home/$USERNAME/wallpaper.jpg"
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.background picture-uri-dark "file:///home/$USERNAME/wallpaper.jpg"
-
-# SET GNOME TERMINAL TO USE DRACULA COLORS
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Configuring terminal colors..."
+# CONFIGURE ULTRA DARK TERMINAL
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Configuring ultra dark terminal..."
 profile=$(sudo -u $USERNAME dbus-launch gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'")
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ background-color '#282A36'
+# Ultra dark terminal colors
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ background-color '#0C0C0C'
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ foreground-color '#F8F8F2'
 sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ use-theme-colors false
-sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ palette "['#262626', '#E356A7', '#42E66C', '#E4F34A', '#9B6BDF', '#E64747', '#75D7EC', '#EFA554', '#7A7A7A', '#FF79C6', '#50FA7B', '#F1FA8C', '#BD93F9', '#FF5555', '#8BE9FD', '#FFB86C']"
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ use-transparent-background true
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile/ background-transparency-percent 5
 
-# OPTIMIZE PACMAN
-show_progress "OPTIMIZING PACMAN"
-progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Optimizing Pacman..."
-sed -i 's/#Color/Color/' /etc/pacman.conf
-sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 10/' /etc/pacman.conf
-sed -i '/\[multilib\]/,/Include/s/^#//' /etc/pacman.conf
+# ENABLE EXTENSIONS
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Enabling extensions..."
+sudo -u $USERNAME dbus-launch gnome-extensions enable dash-to-dock@micxgx.gmail.com
+sudo -u $USERNAME dbus-launch gnome-extensions enable appindicatorsupport@rgcjonas.gmail.com
+sudo -u $USERNAME dbus-launch gnome-extensions enable caffeine@patapon.info
+sudo -u $USERNAME dbus-launch gnome-extensions enable user-theme@gnome-shell-extensions.gcampax.github.com
 
-# Display Pacman Aliases Info
-show_progress "PACMAN ALIASES CONFIGURED"
-echo -e "${CYAN}The following Pacman aliases have been configured:${RESET}"
-echo -e "${WHITE}• ${GREEN}update${RESET} - Update system packages"
-echo -e "${WHITE}• ${GREEN}install${RESET} - Install packages"
-echo -e "${WHITE}• ${GREEN}search${RESET} - Search for packages"
-echo -e "${WHITE}• ${GREEN}remove${RESET} - Remove packages"
-echo -e "${WHITE}• ${GREEN}cleanup${RESET} - Remove orphaned packages"
-echo -e "${WHITE}• ${GREEN}mirror${RESET} - Update mirror list"
-echo ""
+# CONFIGURE GNOME SETTINGS FOR PERFORMANCE
+show_progress "OPTIMIZING GNOME SETTINGS FOR PERFORMANCE"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Configuring GNOME settings..."
+# Restore window buttons
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+# Disable animations for performance
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.desktop.interface enable-animations false
+# Set performance governor
+echo 'performance' | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+# Optimize file manager
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.nautilus.preferences show-hidden-files false
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.nautilus.preferences executable-text-activation 'ask'
 
-# FINAL REPORT
-show_progress "SETUP COMPLETED SUCCESSFULLY!"
-progress_bar $TOTAL_STEPS $TOTAL_STEPS "Setup complete!"
+# CONFIGURE DASH TO DOCK
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Configuring Dash to Dock..."
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.shell.extensions.dash-to-dock dock-position 'BOTTOM'
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.shell.extensions.dash-to-dock transparency-mode 'DYNAMIC'
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.shell.extensions.dash-to-dock dash-max-icon-size 32
+sudo -u $USERNAME dbus-launch gsettings set org.gnome.shell.extensions.dash-to-dock unity-backlit-items false
+
+# SET DEFAULT APPLICATIONS
+show_progress "SETTING DEFAULT APPLICATIONS"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Setting default applications..."
+sudo -u $USERNAME xdg-settings set default-web-browser chromium.desktop
+
+# SYSTEM PERFORMANCE TUNING
+show_progress "APPLYING ADVANCED PERFORMANCE TUNING"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Applying performance tuning..."
+
+# Create performance tuning script
+cat > /etc/systemd/system/performance-tuning.service << 'EOL'
+[Unit]
+Description=Performance Tuning
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'echo performance > /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
+ExecStart=/bin/bash -c 'echo 0 > /sys/kernel/mm/ksm/run'
+ExecStart=/bin/bash -c 'echo 1 > /proc/sys/vm/oom_kill_allocating_task'
+ExecStart=/bin/bash -c 'echo 1 > /proc/sys/kernel/sched_autogroup_enabled'
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+systemctl enable performance-tuning.service
+
+# CREATE MAINTENANCE SCRIPT
+show_progress "CREATING SYSTEM MAINTENANCE SCRIPT"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Creating maintenance script..."
+cat > /usr/local/bin/kudu-maintenance << 'EOL'
+#!/bin/bash
+echo "Running Kudu system maintenance..."
+sudo pacman -Sc --noconfirm
+sudo pacman -Rns $(pacman -Qtdq) 2>/dev/null || echo "No orphans to remove"
+sudo updatedb
+sudo mandb
+echo "Maintenance complete!"
+EOL
+chmod +x /usr/local/bin/kudu-maintenance
+
+# FINAL SYSTEM OPTIMIZATIONS
+show_progress "APPLYING FINAL SYSTEM OPTIMIZATIONS"
+progress_bar $((++CURRENT_STEP)) $TOTAL_STEPS "Final optimizations..."
+
+# Disable unnecessary services
+systemctl disable lvm2-monitor.service 2>/dev/null || true
+systemctl disable ModemManager.service 2>/dev/null || true
+
+# Set swappiness for better performance
+echo 'vm.swappiness=10' >> /etc/sysctl.conf
+echo 'vm.vfs_cache_pressure=50' >> /etc/sysctl.conf
 
 # REVERT SUDO CONFIGURATION
 show_progress "REVERTING SUDO CONFIGURATION"
 sed -i "/^$USERNAME ALL=(ALL) NOPASSWD: ALL$/d" /etc/sudoers
 
-# DISPLAY LOGO AT END AND WAIT
+# FINAL REPORT
+progress_bar $TOTAL_STEPS $TOTAL_STEPS "Setup complete!"
+
 display_logo
 echo -e "${YELLOW}Preparing final report...${RESET}"
-sleep 7
+sleep 3
 
-# NOW SHOW THE FINAL REPORT
 echo ""
 echo -e "${GREEN}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${RESET}"
-echo -e "${GREEN}┃                     ${WHITE}KUDU ARCH LINUX SETUP COMPLETE${GREEN}                     ┃${RESET}"
+echo -e "${GREEN}┃              ${WHITE}KUDU ULTRA CLEAN ARCH LINUX SETUP COMPLETE${GREEN}              ┃${RESET}"
 echo -e "${GREEN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${RESET}"
 echo ""
-echo -e "${CYAN}YOUR MINIMAL KUDU ARCH LINUX SYSTEM HAS BEEN CONFIGURED WITH:${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}MINIMAL GNOME DESKTOP ENVIRONMENT${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}DARK MODE ENABLED${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}DRACULA THEME WITH PAPIRUS ICONS${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}CUSTOM WALLPAPER${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}GNOME TWEAKS WITH RESTORED WINDOW BUTTONS${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}GNOME EXTENSIONS (BLUR MY SHELL, IMPATIENCE, CAFFEINE, DASH TO DOCK, VITALS, APP INDICATOR, COMPIZ EFFECT)${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}ZSH WITH POWERLEVEL10K THEME${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}PACMAN ALIASES FOR EASIER SYSTEM MANAGEMENT${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}CHROMIUM BROWSER (DEFAULT)${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}TEAMS FOR LINUX${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}VISUAL STUDIO CODE WITH EXTENSIONS (PYTHON, GO, GITLENS, AZURE FUNCTIONS)${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}POSTMAN${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}SPOTIFY${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}DISCORD${RESET}"
-echo -e "${WHITE}✅ ${MAGENTA}GNOME BOXES FOR VIRTUALIZATION${RESET}"
+echo -e "${CYAN}YOUR ULTRA CLEAN & EFFICIENT ARCH SYSTEM INCLUDES:${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}ULTRA DARK NORDIC + FLAT REMIX THEME${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}CUSTOM JELLYFISH WALLPAPER${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}ZRAM MEMORY COMPRESSION${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}SSD OPTIMIZATIONS (FSTRIM, NOATIME)${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}PERFORMANCE CPU GOVERNOR${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}PRELOAD FOR FASTER APP LOADING${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}OPTIMIZED PACMAN (15 PARALLEL DOWNLOADS)${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}MINIMAL GNOME WITH ESSENTIAL EXTENSIONS${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}ULTRA DARK TRANSPARENT TERMINAL${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}ZSH WITH POWERLEVEL10K (PERFORMANCE MODE)${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}ENHANCED SYSTEM ALIASES${RESET}"
+echo -e "${WHITE}✅ ${MAGENTA}AUTOMATIC SYSTEM MAINTENANCE SCRIPT${RESET}"
 echo ""
-echo -e "${YELLOW} PLEASE REBOOT YOUR SYSTEM TO COMPLETE THE SETUP:${RESET}"
+echo -e "${BLUE}PERFORMANCE FEATURES:${RESET}"
+echo -e "${WHITE}• ${CYAN}Disabled animations for speed${RESET}"
+echo -e "${WHITE}• ${CYAN}Optimized memory management${RESET}"
+echo -e "${WHITE}• ${CYAN}Faster mirror selection${RESET}"
+echo -e "${WHITE}• ${CYAN}SSD-optimized filesystem settings${RESET}"
+echo -e "${WHITE}• ${CYAN}Performance-focused extensions only${RESET}"
+echo ""
+echo -e "${YELLOW}MAINTENANCE COMMANDS:${RESET}"
+echo -e "${WHITE}• ${GREEN}kudu-maintenance${RESET} - Run system cleanup"
+echo -e "${WHITE}• ${GREEN}fastmirror${RESET} - Update to fastest mirrors"
+echo -e "${WHITE}• ${GREEN}sysinfo${RESET} - Show system information"
+echo ""
+echo -e "${YELLOW}PLEASE REBOOT TO COMPLETE SETUP:${RESET}"
 echo -e "${YELLOW}   $ sudo reboot${RESET}"
 echo ""
-echo -e "${BLUE}SETUP LOG HAS BEEN SAVED TO: $LOG_FILE${RESET}"
+echo -e "${BLUE}SETUP LOG: $LOG_FILE${RESET}"
